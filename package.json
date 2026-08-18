@@ -1,0 +1,42 @@
+{
+  "name": "tarkwa-robotic-hub",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.19"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "supabase:types": "supabase gen types typescript --project-id YOUR_PROJECT_ID --schema public > types/database.types.ts"
+  },
+  "dependencies": {
+    "next": "^16.2.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@supabase/supabase-js": "^2.110.2",
+    "@supabase/ssr": "^0.12.0",
+    "framer-motion": "^11.3.19",
+    "zod": "^3.23.8",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.4.0",
+    "lucide-react": "^0.417.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "@types/node": "^20.14.13",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "tailwindcss": "^3.4.7",
+    "postcss": "^8.5.19",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.10"
+  }
+}

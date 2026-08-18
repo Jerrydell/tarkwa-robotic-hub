@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+
+  /* Visible keyboard focus everywhere — accessibility floor, not optional */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-surface/60 backdrop-blur-md border border-border;
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      theme("colors.surface") 25%,
+      theme("colors.surface-elevated") 50%,
+      theme("colors.surface") 75%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+}
+
+/* Respect reduced-motion preferences across the whole app */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
