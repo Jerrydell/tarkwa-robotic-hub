@@ -8,6 +8,6 @@ export async function getAllSettings() {
 
 export async function getSetting(key: string): Promise<boolean> {
   const supabase = await createClient();
-  const { data } = await supabase.from("app_settings").select("value").eq("key", key).maybeSingle();
-  return data?.value === true;
+  const { data } = await supabase.rpc("get_site_setting", { setting_key: key });
+  return data === true;
 }

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { getSafeRedirect } from "@/lib/validation/redirect";
 
 const signUpSchema = z.object({
   fullName: z.string().min(2, "Enter your full name."),
@@ -74,7 +75,8 @@ export async function signIn(
   }
 
   const redirectTo = formData.get("redirectTo");
-  redirect(typeof redirectTo === "string" && redirectTo ? redirectTo : "/dashboard");
+  const safeRedirect = getSafeRedirect(typeof redirectTo === "string" ? redirectTo : null);
+  redirect(safeRedirect);
 }
 
 export async function signOut() {

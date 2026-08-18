@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/helpers";
 import { getSetting } from "@/features/admin/settings/queries";
 
@@ -71,7 +71,9 @@ export async function startConversation(recipientId: string): Promise<StartConve
     }
   }
 
-  const { data: conversation, error } = await supabase
+  const adminClient = await createAdminClient();
+
+  const { data: conversation, error } = await adminClient
     .from("conversations")
     .insert({ is_group: false, is_team_chat: false })
     .select("id")
@@ -81,7 +83,7 @@ export async function startConversation(recipientId: string): Promise<StartConve
     return { error: "Something went wrong starting the conversation." };
   }
 
-  await supabase.from("conversation_participants").insert([
+  await adminClient.from("conversation_participants").insert([
     { conversation_id: conversation.id, user_id: profile.id },
     { conversation_id: conversation.id, user_id: recipientId },
   ]);

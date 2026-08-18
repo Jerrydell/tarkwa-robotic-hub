@@ -31,3 +31,24 @@ export async function createClient() {
     }
   );
 }
+
+/**
+ * Service role client that bypasses RLS. USE WITH EXTREME CARE.
+ * Only use in Server Actions/Route Handlers where RLS is not sufficient.
+ */
+export async function createAdminClient() {
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll() {
+          // Admin client doesn't need to persist cookies
+        },
+      },
+    }
+  );
+}

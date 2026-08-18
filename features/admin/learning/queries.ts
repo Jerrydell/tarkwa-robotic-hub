@@ -101,6 +101,27 @@ export async function getAllQuizzesAdmin() {
 
 export async function getQuizByIdAdmin(id: string) {
   const supabase = await createClient();
-  const { data } = await supabase.from("quizzes").select("*").eq("id", id).single();
-  return data;
+  
+  // 1. Fetch the quiz
+  const { data: quiz } = await supabase.from("quizzes").select("*").eq("id", id).single();
+  if (!quiz) return null;
+
+  // 2. Fetch the answers
+  const { data: answers } = await supabase
+    .from("quiz_answers")
+    .select("*")
+    .eq("quiz_id", id)
+    .order("question_index", { ascending: true });
+
+  // 3. Merge them back into the questions JSON for the admin UI
+  const questions = (quiz.questions as any[] || []).map((q, i) => {
+    const answer = answers?.find(a => a.question_index === i);
+    return {
+      ...q,
+      correct_index: answer?.correct_index ?? 0,
+      explanation: answer?.explanation ?? ""
+    };
+  });
+
+  return { ...quiz, questions };
 }

@@ -47,13 +47,10 @@ export async function proxy(request: NextRequest) {
   // Site-wide maintenance mode: everyone except a logged-in Super Admin
   // gets redirected, on every route except the exempt ones above.
   if (!isExemptRoute && role !== "super_admin") {
-    const { data: setting } = await supabase
-      .from("app_settings")
-      .select("value")
-      .eq("key", "maintenance_mode")
-      .maybeSingle();
+    const { data: isMaintenance } = await supabase
+      .rpc("get_site_setting", { setting_key: "maintenance_mode" });
 
-    if (setting?.value === true) {
+    if (isMaintenance === true) {
       return NextResponse.redirect(new URL("/maintenance", request.url));
     }
   }

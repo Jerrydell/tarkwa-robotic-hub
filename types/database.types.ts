@@ -508,12 +508,34 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["moderation_actions"]["Row"]>;
         Relationships: never[];
       };
+      quiz_answers: {
+        Row: {
+          quiz_id: string;
+          question_index: number;
+          correct_index: number;
+          explanation: string | null;
+        };
+        Insert: Database["public"]["Tables"]["quiz_answers"]["Row"];
+        Update: Partial<Database["public"]["Tables"]["quiz_answers"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answers_quiz_id_fkey";
+            columns: ["quiz_id"];
+            referencedRelation: "quizzes";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       can_message: {
         Args: { user_a: string; user_b: string };
         Returns: boolean;
+      };
+      get_site_setting: {
+        Args: { setting_key: string };
+        Returns: any;
       };
     };
   };

@@ -107,6 +107,38 @@ npm run dev
 
 Visit `http://localhost:3000`.
 
+---
+
+## 🛡️ Security Hardening (August 2026)
+
+This repository has been hardened with the following measures:
+
+- **Quiz Answer Protection**: Correct answers are now stored in a separate `quiz_answers` table. The `quizzes.questions` JSONB has been stripped of sensitive fields. Scoring is performed server-side using a service-role client.
+- **Messaging Enforcement**: Direct messaging is restricted via RLS and Server Action checks. Students can only message Super Admins; Club Members can message each other. Direct database inserts into `conversations` are blocked for standard users.
+- **Moderation Protection**: Database triggers prevent regular users from modifying moderation fields (e.g., `is_pinned`, `is_resolved`) or computed fields (e.g., `upvote_count`).
+- **Open Redirect Prevention**: A utility `getSafeRedirect` is used to validate all `redirectTo` parameters, ensuring they only point to internal relative paths.
+- **Maintenance Mode Fix**: Anonymous visitors are now correctly redirected to `/maintenance` when enabled, via a secure RPC that bypasses the restriction on the `app_settings` table.
+
+**Important for Production:**
+1. **Rotate Keys**: If your `SUPABASE_SERVICE_ROLE_KEY` has ever been checked into version control or exposed, rotate it immediately.
+2. **Environment Hygiene**: Never commit your `.env` file. Use placeholders in `.env.example`.
+3. **RLS is Primary**: While the UI provides a good experience, Row Level Security is the ultimate source of truth for all data access rules.
+
+---
+
+## 🧪 Testing
+
+The repository includes unit tests for core security helpers.
+
+```bash
+npm test
+```
+
+Currently includes:
+- Redirect sanitization logic
+
+---
+
 ### Creating your first Super Admin
 
 There's no signup flow for this — after signing up once, promote

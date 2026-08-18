@@ -203,27 +203,44 @@ export async function createQuiz(
   const title = formData.get("title") as string;
   if (!title?.trim()) return { success: false, error: "Title is required." };
 
-  let questions = [];
+  let rawQuestions = [];
   try {
-    questions = JSON.parse((formData.get("questions") as string) || "[]");
+    rawQuestions = JSON.parse((formData.get("questions") as string) || "[]");
   } catch {
     return { success: false, error: "Questions couldn't be parsed." };
   }
 
+  // Strip answers for the main quizzes table
+  const questionsForPublic = rawQuestions.map((q: any) => ({
+    question: q.question,
+    options: q.options,
+  }));
+
   const lessonId = (formData.get("lessonId") as string) || null;
 
-  const { data, error } = await supabase
+  const { data: quiz, error } = await supabase
     .from("quizzes")
     .insert({
       title,
       lesson_id: lessonId || null,
       passing_score: Number(formData.get("passingScore")) || 70,
-      questions,
+      questions: questionsForPublic,
     })
     .select("id")
     .single();
 
-  if (error || !data) return { success: false, error: "Something went wrong." };
+  if (error || !quiz) return { success: false, error: "Something went wrong creating the quiz." };
+
+  // Save secure answers
+  const answers = rawQuestions.map((q: any, i: number) => ({
+    quiz_id: quiz.id,
+    question_index: i,
+    correct_index: q.correct_index,
+    explanation: q.explanation || null,
+  }));
+
+  const { error: answerError } = await supabase.from("quiz_answers").insert(answers);
+  if (answerError) return { success: false, error: "Failed to save quiz answers." };
 
   revalidatePath("/admin/learning/quizzes");
   redirect("/admin/learning/quizzes");
@@ -237,23 +254,41 @@ export async function updateQuiz(
   await requireRole("super_admin");
   const supabase = await createClient();
 
-  let questions = [];
+  let rawQuestions = [];
   try {
-    questions = JSON.parse((formData.get("questions") as string) || "[]");
+    rawQuestions = JSON.parse((formData.get("questions") as string) || "[]");
   } catch {
     return { success: false, error: "Questions couldn't be parsed." };
   }
+
+  // Strip answers for the main quizzes table
+  const questionsForPublic = rawQuestions.map((q: any) => ({
+    question: q.question,
+    options: q.options,
+  }));
 
   const { error } = await supabase
     .from("quizzes")
     .update({
       title: formData.get("title") as string,
       passing_score: Number(formData.get("passingScore")) || 70,
-      questions,
+      questions: questionsForPublic,
     })
     .eq("id", quizId);
 
-  if (error) return { success: false, error: "Something went wrong." };
+  if (error) return { success: false, error: "Something went wrong updating the quiz." };
+
+  // Sync secure answers
+  await supabase.from("quiz_answers").delete().eq("quiz_id", quizId);
+  
+  const answers = rawQuestions.map((q: any, i: number) => ({
+    quiz_id: quizId,
+    question_index: i,
+    correct_index: q.correct_index,
+    explanation: q.explanation || null,
+  }));
+
+  await supabase.from("quiz_answers").insert(answers);
 
   revalidatePath("/admin/learning/quizzes");
   revalidatePath(`/admin/learning/quizzes/${quizId}/edit`);
