@@ -10,7 +10,7 @@ import { updateSession } from "@/lib/supabase/middleware";
  * same behavior, renamed file/export, see nextjs.org/docs/messages/middleware-to-proxy).
  */
 export async function proxy(request: NextRequest) {
-  const { response, session, supabase } = await updateSession(request);
+  const { response, user, supabase } = await updateSession(request);
   const path = request.nextUrl.pathname;
 
   const isDashboardRoute = path.startsWith("/dashboard");
@@ -18,7 +18,7 @@ export async function proxy(request: NextRequest) {
   const isExemptRoute = path === "/login" || path === "/suspended" || path === "/maintenance";
 
   // Not logged in, trying to reach a protected route -> send to login
-  if (!session && (isDashboardRoute || isAdminRoute)) {
+  if (!user && (isDashboardRoute || isAdminRoute)) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirectTo", path);
     return NextResponse.redirect(redirectUrl);
@@ -26,11 +26,11 @@ export async function proxy(request: NextRequest) {
 
   let role: string | undefined;
 
-  if (session) {
+  if (user) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role, is_active")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     role = profile?.role;

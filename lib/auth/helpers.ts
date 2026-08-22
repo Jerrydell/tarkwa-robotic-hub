@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 export type Role = "student" | "club_member" | "super_admin";
 
@@ -10,7 +11,7 @@ const ROLE_RANK: Record<Role, number> = {
 };
 
 /** Returns the current session's user + profile, or null if signed out. */
-export async function getCurrentProfile() {
+export const getCurrentProfile = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,7 +26,7 @@ export async function getCurrentProfile() {
     .single();
 
   return profile;
-}
+});
 
 /**
  * Server Action / Server Component guard: throws the user back to /login
