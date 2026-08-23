@@ -37,7 +37,7 @@ export default async function AdminGalleryPage() {
               </div>
               <div className="flex items-center justify-between p-3">
                 <p className="truncate text-xs text-muted">{item.caption || item.category || "—"}</p>
-                <DeleteButton onDelete={() => deleteGalleryItem(item.id)} label="" />
+                <DeleteButton action={deleteGalleryItem} id={item.id} label="" />
               </div>
             </Card>
           ))}

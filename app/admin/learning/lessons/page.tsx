@@ -47,12 +47,13 @@ export default async function AdminLessonsPage() {
                 <p className="text-xs text-muted">{lesson.moduleTitle}</p>
               </div>
               <ToggleButton
+                action={toggleLessonPublish}
+                id={lesson.id}
                 isOn={lesson.is_published}
-                onToggle={() => toggleLessonPublish(lesson.id, lesson.is_published)}
                 onLabel="Published"
                 offLabel="Draft"
               />
-              <DeleteButton onDelete={() => deleteLesson(lesson.id)} />
+              <DeleteButton action={deleteLesson} id={lesson.id} />
             </Card>
           ))}
         </div>

@@ -42,7 +42,7 @@ export default async function AdminAnnouncementsPage() {
               <Badge tone={a.published_at ? "success" : "warning"}>
                 {a.published_at ? "Published" : "Draft"}
               </Badge>
-              <DeleteButton onDelete={() => deleteAnnouncement(a.id)} />
+              <DeleteButton action={deleteAnnouncement} id={a.id} />
             </Card>
           ))}
         </div>

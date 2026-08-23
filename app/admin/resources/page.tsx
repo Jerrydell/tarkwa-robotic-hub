@@ -39,7 +39,7 @@ export default async function AdminResourcesPage() {
                 <p className="text-xs text-muted">{r.resource_type}</p>
               </div>
               <Badge tone="muted">{r.visibility}</Badge>
-              <DeleteButton onDelete={() => deleteResource(r.id)} />
+              <DeleteButton action={deleteResource} id={r.id} />
             </Card>
           ))}
         </div>

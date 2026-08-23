@@ -47,7 +47,7 @@ export default async function AdminQuizzesPage() {
                 <p className="text-xs text-muted">{quiz.lessonTitle}</p>
               </div>
               <Badge tone="muted">Pass: {quiz.passing_score}%</Badge>
-              <DeleteButton onDelete={() => deleteQuiz(quiz.id)} />
+              <DeleteButton action={deleteQuiz} id={quiz.id} />
             </Card>
           ))}
         </div>

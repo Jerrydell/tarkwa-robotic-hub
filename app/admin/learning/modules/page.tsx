@@ -54,13 +54,15 @@ export default async function AdminModulesPage() {
                 </p>
               </div>
               <ToggleButton
+                action={toggleModulePublish}
+                id={mod.id}
                 isOn={mod.is_published}
-                onToggle={() => toggleModulePublish(mod.id, mod.is_published)}
                 onLabel="Published"
                 offLabel="Draft"
               />
               <DeleteButton
-                onDelete={() => deleteModule(mod.id)}
+                action={deleteModule}
+                id={mod.id}
                 confirmMessage="Delete this module and all its lessons? This can't be undone."
               />
             </Card>

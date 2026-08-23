@@ -12,6 +12,18 @@ export interface AdminFormState {
   error?: string;
 }
 
+function getFormId(formData: FormData): string {
+  const value = formData.get("id");
+  if (typeof value !== "string" || !value) {
+    throw new Error("A record ID is required.");
+  }
+  return value;
+}
+
+function getFormBoolean(formData: FormData, name: string): boolean {
+  return formData.get(name) === "true";
+}
+
 // ---------- Modules ----------
 
 export async function createModule(
@@ -67,18 +79,26 @@ export async function updateModule(
   return { success: true };
 }
 
-export async function toggleModulePublish(moduleId: string, isPublished: boolean) {
+export async function toggleModulePublish(formData: FormData) {
   await requireRole("super_admin");
+  const moduleId = getFormId(formData);
+  const isPublished = getFormBoolean(formData, "isPublished");
   const supabase = await createClient();
-  await supabase.from("modules").update({ is_published: !isPublished }).eq("id", moduleId);
+  const { error } = await supabase
+    .from("modules")
+    .update({ is_published: !isPublished })
+    .eq("id", moduleId);
+  if (error) throw new Error("Could not update module publication status.");
   revalidatePath("/admin/learning/modules");
   revalidatePath("/learn");
 }
 
-export async function deleteModule(moduleId: string) {
+export async function deleteModule(formData: FormData) {
   await requireRole("super_admin");
+  const moduleId = getFormId(formData);
   const supabase = await createClient();
-  await supabase.from("modules").delete().eq("id", moduleId);
+  const { error } = await supabase.from("modules").delete().eq("id", moduleId);
+  if (error) throw new Error("Could not delete module.");
   revalidatePath("/admin/learning/modules");
 }
 
@@ -177,17 +197,25 @@ export async function updateLesson(
   return { success: true };
 }
 
-export async function toggleLessonPublish(lessonId: string, isPublished: boolean) {
+export async function toggleLessonPublish(formData: FormData) {
   await requireRole("super_admin");
+  const lessonId = getFormId(formData);
+  const isPublished = getFormBoolean(formData, "isPublished");
   const supabase = await createClient();
-  await supabase.from("lessons").update({ is_published: !isPublished }).eq("id", lessonId);
+  const { error } = await supabase
+    .from("lessons")
+    .update({ is_published: !isPublished })
+    .eq("id", lessonId);
+  if (error) throw new Error("Could not update lesson publication status.");
   revalidatePath("/admin/learning/lessons");
 }
 
-export async function deleteLesson(lessonId: string) {
+export async function deleteLesson(formData: FormData) {
   await requireRole("super_admin");
+  const lessonId = getFormId(formData);
   const supabase = await createClient();
-  await supabase.from("lessons").delete().eq("id", lessonId);
+  const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
+  if (error) throw new Error("Could not delete lesson.");
   revalidatePath("/admin/learning/lessons");
 }
 
@@ -295,9 +323,11 @@ export async function updateQuiz(
   return { success: true };
 }
 
-export async function deleteQuiz(quizId: string) {
+export async function deleteQuiz(formData: FormData) {
   await requireRole("super_admin");
+  const quizId = getFormId(formData);
   const supabase = await createClient();
-  await supabase.from("quizzes").delete().eq("id", quizId);
+  const { error } = await supabase.from("quizzes").delete().eq("id", quizId);
+  if (error) throw new Error("Could not delete quiz.");
   revalidatePath("/admin/learning/quizzes");
 }

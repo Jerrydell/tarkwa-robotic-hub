@@ -12,6 +12,14 @@ export interface AdminFormState {
   error?: string;
 }
 
+function getFormId(formData: FormData): string {
+  const value = formData.get("id");
+  if (typeof value !== "string" || !value) {
+    throw new Error("A record ID is required.");
+  }
+  return value;
+}
+
 // ---------- Events ----------
 
 export async function createEvent(
@@ -76,10 +84,12 @@ export async function updateEvent(
   return { success: true };
 }
 
-export async function deleteEvent(eventId: string) {
+export async function deleteEvent(formData: FormData) {
   await requireRole("super_admin");
+  const eventId = getFormId(formData);
   const supabase = await createClient();
-  await supabase.from("events").delete().eq("id", eventId);
+  const { error } = await supabase.from("events").delete().eq("id", eventId);
+  if (error) throw new Error("Could not delete event.");
   revalidatePath("/admin/events");
   revalidatePath("/events");
 }
@@ -141,10 +151,12 @@ export async function updateResource(
   return { success: true };
 }
 
-export async function deleteResource(resourceId: string) {
+export async function deleteResource(formData: FormData) {
   await requireRole("super_admin");
+  const resourceId = getFormId(formData);
   const supabase = await createClient();
-  await supabase.from("resources").delete().eq("id", resourceId);
+  const { error } = await supabase.from("resources").delete().eq("id", resourceId);
+  if (error) throw new Error("Could not delete resource.");
   revalidatePath("/admin/resources");
   revalidatePath("/resources");
 }
@@ -205,10 +217,12 @@ export async function updateAnnouncement(
   return { success: true };
 }
 
-export async function deleteAnnouncement(announcementId: string) {
+export async function deleteAnnouncement(formData: FormData) {
   await requireRole("super_admin");
+  const announcementId = getFormId(formData);
   const supabase = await createClient();
-  await supabase.from("announcements").delete().eq("id", announcementId);
+  const { error } = await supabase.from("announcements").delete().eq("id", announcementId);
+  if (error) throw new Error("Could not delete announcement.");
   revalidatePath("/admin/announcements");
 }
 
@@ -240,10 +254,12 @@ export async function createGalleryItem(
   redirect("/admin/gallery");
 }
 
-export async function deleteGalleryItem(itemId: string) {
+export async function deleteGalleryItem(formData: FormData) {
   await requireRole("super_admin");
+  const itemId = getFormId(formData);
   const supabase = await createClient();
-  await supabase.from("gallery_items").delete().eq("id", itemId);
+  const { error } = await supabase.from("gallery_items").delete().eq("id", itemId);
+  if (error) throw new Error("Could not delete gallery item.");
   revalidatePath("/admin/gallery");
   revalidatePath("/gallery");
 }

@@ -44,7 +44,7 @@ export default async function AdminEventsPage() {
               </div>
               <Badge tone="muted">{event.event_type}</Badge>
               {event.is_internal && <Badge tone="identity">Internal</Badge>}
-              <DeleteButton onDelete={() => deleteEvent(event.id)} />
+              <DeleteButton action={deleteEvent} id={event.id} />
             </Card>
           ))}
         </div>
