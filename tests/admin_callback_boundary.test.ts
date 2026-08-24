@@ -70,6 +70,7 @@ describe("admin Server Action callback boundary", () => {
   it("keeps the client controls on the supported form-action boundary", () => {
     const deleteButton = readRepoFile("components/admin/delete-button.tsx");
     const toggleButton = readRepoFile("components/admin/toggle-button.tsx");
+    const moderateDeleteButton = readRepoFile("components/admin/moderate-delete-button.tsx");
 
     expect(deleteButton).toContain("action={action}");
     expect(deleteButton).toContain("useFormStatus");
@@ -77,11 +78,28 @@ describe("admin Server Action callback boundary", () => {
     expect(toggleButton).toContain("action={action}");
     expect(toggleButton).toContain("useFormStatus");
     expect(toggleButton).not.toContain("onToggle");
+    expect(moderateDeleteButton).toContain("action={action}");
+    expect(moderateDeleteButton).toContain("useFormStatus");
+    expect(moderateDeleteButton).toContain('name="id"');
+    expect(moderateDeleteButton).toContain('name="reason"');
+    expect(moderateDeleteButton).not.toContain("onDelete");
+  });
+
+  it("uses Server Action references and serialized IDs on Admin Community", () => {
+    const source = readRepoFile("app/admin/community/page.tsx");
+
+    expect(source).not.toMatch(/onDelete\s*=/);
+    expect(source).toContain("action={moderateDeletePost}");
+    expect(source).toContain("id={post.id}");
+    expect(source).toContain("action={moderateDeleteReply}");
+    expect(source).toContain("id={reply.id}");
+    expect(source).toContain("postId={reply.post_id}");
   });
 
   it("accepts FormData and keeps authorization in each affected Server Action", () => {
     const contentActions = readRepoFile("features/admin/content/actions.ts");
     const learningActions = readRepoFile("features/admin/learning/actions.ts");
+    const communityActions = readRepoFile("features/admin/community/actions.ts");
 
     for (const actionName of [
       "deleteEvent",
@@ -104,5 +122,11 @@ describe("admin Server Action callback boundary", () => {
 
     expect(contentActions.match(/await requireRole\("super_admin"\)/g)?.length).toBeGreaterThanOrEqual(4);
     expect(learningActions.match(/await requireRole\("super_admin"\)/g)?.length).toBeGreaterThanOrEqual(5);
+    expect(communityActions).toMatch(/export async function moderateDeletePost\(formData: FormData\)/);
+    expect(communityActions).toMatch(/export async function moderateDeleteReply\(formData: FormData\)/);
+    expect(communityActions.match(/requireRole\("super_admin"\)/g)?.length).toBeGreaterThanOrEqual(3);
+    expect(communityActions).toContain('formData.get("reason")');
+    expect(communityActions).toContain("UUID_PATTERN");
+    expect(communityActions).toContain("if (!reason)");
   });
 });

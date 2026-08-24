@@ -44,9 +44,7 @@ export default async function AdminCommunityPage() {
                 </div>
                 {post.is_resolved && <Badge tone="success">Resolved</Badge>}
                 <PinToggleButton postId={post.id} isPinned={post.is_pinned} />
-                <ModerateDeleteButton
-                  onDelete={(reason) => moderateDeletePost(post.id, reason)}
-                />
+                <ModerateDeleteButton action={moderateDeletePost} id={post.id} />
               </Card>
             ))}
           </div>
@@ -71,7 +69,9 @@ export default async function AdminCommunityPage() {
                   </p>
                 </div>
                 <ModerateDeleteButton
-                  onDelete={(reason) => moderateDeleteReply(reply.id, reply.post_id, reason)}
+                  action={moderateDeleteReply}
+                  id={reply.id}
+                  postId={reply.post_id}
                 />
               </Card>
             ))}
